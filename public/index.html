@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>YouTube Timer</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+const ytBE = /^https:\/\/youtu\.be\/[a-zA-Z0-9_-]+$/;
+var timeLeft = -999;
+var ytID = null;
+
+function loadFrame() {
+	var iframeHTML = '<iframe width="560" height="315" src="https://www.youtube.com/embed/'+ytID+'" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+	$("#video").html(iframeHTML);
+}
+
+$( document ).ready(function() {
+	// Load a GET-defined video's URL, if it exists
+	var searchParams = new URLSearchParams(window.location.search);
+	if(searchParams.has("id")) {
+		$("#url").val("https://youtu.be/"+searchParams.get("id"));
+	}
+
+	// Set the timer function
+	setInterval(function() {
+		if(timeLeft == -999) {
+			$("#time_left").html("Timer stopped");
+			return;
+		}
+		if(timeLeft <= 0) {
+			$("#time_left").html("Timer ended");
+			return;
+		}
+		
+		// Tick down
+		var minsLeft = Math.floor(timeLeft/60);
+		var secsLeft = timeLeft%60;
+		if(secsLeft<10) {
+			secsLeft = "0"+secsLeft;
+		}
+		$("#time_left").html(minsLeft+":"+secsLeft+" remains");
+		timeLeft--;
+		
+		// (once only) Re-load video to stop playing
+		if(timeLeft <= 0) {
+			loadFrame();
+		}
+	},1000);
+
+	// Button bind events
+	$("#load").click(function() {
+		var yt = $("#url").val();
+		if(!yt.match(ytBE)) {
+			alert("Bad URL: use youtu.be");
+			return;
+		}
+		
+		// Set the video ID in the URL bar for easy reloads
+		ytID = yt.substring(17);
+		var thisURL = new URL(window.location);
+		var newURL = thisURL.origin+thisURL.pathname+"?id="+ytID;
+		history.pushState({}, null, newURL);
+		
+		loadFrame();
+	});
+
+	$("#start").click(function() {
+		if($("#video iframe").length==0) {
+			alert("Load video first");
+			return;
+		}
+		timeLeft = $("#time").val()*60;
+	});
+
+	$("#stop").click(function() {
+		timeLeft = -999;
+	});
+
+});
+</script>
+
+<style>
+.inputs,
+#video iframe {
+	margin-bottom: 15px;
+}
+button {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+</style>
+
+</head>
+<body>
+
+<div id="video"></div>
+<div class="inputs">
+	<input id="url" value="https://youtu.be/K3v5wFMQRqs">
+	<button type="button" id="load">Load</button> (youtu.be)
+</div>
+<div class="inputs">
+	<input type="number" id="time" value="60">
+	<button type="button" id="start">Start</button>
+	<button type="button" id="stop">Stop</button>
+</div>
+<div id="time_left"></div>
+
+</body>
+</html>
