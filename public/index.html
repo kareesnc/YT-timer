@@ -16,6 +16,15 @@ function loadFrame() {
 	$("#video").html(iframeHTML);
 }
 
+function setURL() {
+	var thisURL = new URL(window.location);
+	var newURL = thisURL.origin+thisURL.pathname;
+	if(ytID) {
+		newURL = newURL+"?id="+ytID;
+	}
+	history.pushState({}, null, newURL);
+}
+
 $( document ).ready(function() {
 	// Load a GET-defined video's URL, if it exists
 	var searchParams = new URLSearchParams(window.location.search);
@@ -57,13 +66,17 @@ $( document ).ready(function() {
 			return;
 		}
 		
-		// Set the video ID in the URL bar for easy reloads
 		ytID = yt.substring(17);
-		var thisURL = new URL(window.location);
-		var newURL = thisURL.origin+thisURL.pathname+"?id="+ytID;
-		history.pushState({}, null, newURL);
-		
+		setURL();
 		loadFrame();
+	});
+
+	$("#clear").click(function() {
+		timeLeft = -999;
+		$("#video").html("");
+		$("#url").val("");
+		ytID = null;
+		setURL();
 	});
 
 	$("#start").click(function() {
@@ -87,8 +100,7 @@ $( document ).ready(function() {
 	margin-bottom: 15px;
 }
 button {
-	padding-left: 25px;
-	padding-right: 25px;
+	padding: 5px 25px;
 }
 </style>
 
@@ -98,7 +110,8 @@ button {
 <div id="video"></div>
 <div class="inputs">
 	<input id="url" value="https://youtu.be/K3v5wFMQRqs">
-	<button type="button" id="load">Load</button> (youtu.be)
+	<button type="button" id="load">Load</button>
+	<button type="button" id="clear">Clear</button>
 </div>
 <div class="inputs">
 	<input type="number" id="time" value="60">
