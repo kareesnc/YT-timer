@@ -1,5 +1,5 @@
 # YT-timer
-Very basic YouTube sleep timer
+Very basic YouTube & Twitch sleep timer
 
 ### Firebase
 Run locally: 
