@@ -16,7 +16,7 @@ const initText = "Load a video URL above, then start. <ul>"+
                     "<li>https://www.twitch.tv/[channel]</li>"+
                     "</ul>";
 const iframeStart = '<iframe width="560" height="315" src="';
-const iframeEnd = '" frameborder="0" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen autoplay="false"></iframe>';
+const iframeEnd = '" frameborder="0" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
 var timeLeft = -999;
 var vID = null;
 var timer = null;
@@ -24,24 +24,24 @@ var timer = null;
 function loadFrame() {
     var url = $("#url").val();
     vID = null;
-    var iframeHTML = "";
+    var embedURL = "";
     var thisURL = new URL(window.location);
     var newURL = thisURL.origin+thisURL.pathname;
 
     if(url.match(youtube)) {
         vID = url.substring(17);
         newURL = newURL+"?yt="+vID;
-        iframeHTML = iframeStart+'https://www.youtube.com/embed/'+vID+iframeEnd;
+        embedURL = 'https://www.youtube.com/embed/'+vID;
     }
     else if(url.match(twitchVid)) {
         vID = url.substring(29);
         newURL = newURL+"?tv="+vID;
-        iframeHTML = iframeStart+'https://player.twitch.tv/?video='+vID+"&parent="+thisURL.hostname+iframeEnd;
+        embedURL = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname+'&video='+vID;
     }
     else if(url.match(twitchChan)) {
         vID = url.substring(22);
         newURL = newURL+"?tc="+vID;
-        iframeHTML = iframeStart+'https://player.twitch.tv/?channel='+vID+"&parent="+thisURL.hostname+iframeEnd;
+        embedURL = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname+'&channel='+vID;
     }
     else if(url) {
         // only alert on non-empty, but invalid values
@@ -50,7 +50,7 @@ function loadFrame() {
     }
 
     history.pushState({}, null, newURL);
-    $("#video").html(iframeHTML);
+    $("#video").html(iframeStart+embedURL+iframeEnd);
 }
 
 function tick() {
