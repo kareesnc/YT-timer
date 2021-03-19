@@ -1,12 +1,14 @@
 # YT-timer
 Very basic YouTube & Twitch sleep timer
 
-### Firebase
+### Develop with Firebase
+Requires the Firebase CLI: https://firebase.google.com/docs/cli  
+  
 Run locally: 
 ```
 firebase emulators:start
 ```
-Deploy:
+Deploy (requires auth):
 ```
 firebase deploy --only hosting
 ```
