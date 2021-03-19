@@ -86,10 +86,10 @@ function tick() {
     $("#time_left").html(timeText);
     timeLeft--;
     
-    // (once only) Reload video after last second to stop playing
+    // (once only) Destroy iFrame to ensure playback stops
     if(timeLeft <= 0) {
         setTimeout(function() {
-            loadFrame();
+            $("#video").html('');
         }, 1000);
     }
 }
