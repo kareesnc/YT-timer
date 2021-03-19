@@ -7,116 +7,137 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-const ytBE = /^https:\/\/youtu\.be\/[a-zA-Z0-9_-]+$/;
-const initText = "Load a youtu.be URL above, then start.";
+const youtube = /^https:\/\/youtu\.be\/[a-zA-Z0-9_-]+$/;
+const twitchVid = /^https:\/\/www\.twitch\.tv\/videos\/[0-9]+$/;
+const twitchChan = /^https:\/\/www\.twitch\.tv\/[[a-zA-Z0-9_-]+$/;
+const initText = "Load a video URL above, then start. <ul>"+
+                    "<li>https://youtu.be/[video]</li>"+
+                    "<li>https://www.twitch.tv/videos/[video]</li>"+
+                    "<li>https://www.twitch.tv/[channel]</li>"+
+                    "</ul>";
+const iframeStart = '<iframe width="560" height="315" src="';
+const iframeEnd = '" frameborder="0" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen autoplay="false"></iframe>';
 var timeLeft = -999;
-var ytID = null;
+var vID = null;
 var timer = null;
 
 function loadFrame() {
-	var yt = $("#url").val();
-	ytID = null;
-	var iframeHTML = "";
+    var url = $("#url").val();
+    vID = null;
+    var iframeHTML = "";
+    var thisURL = new URL(window.location);
+    var newURL = thisURL.origin+thisURL.pathname;
 
-	if(yt.match(ytBE)) {
-		ytID = yt.substring(17);
-	}
-	else if(yt) {
-		// only alert on non-empty, but invalid values
-		alert("Bad URL: use youtu.be");
-		return;
-	}
+    if(url.match(youtube)) {
+        vID = url.substring(17);
+        newURL = newURL+"?yt="+vID;
+        iframeHTML = iframeStart+'https://www.youtube.com/embed/'+vID+iframeEnd;
+    }
+    else if(url.match(twitchVid)) {
+        vID = url.substring(29);
+        newURL = newURL+"?tv="+vID;
+        iframeHTML = iframeStart+'https://player.twitch.tv/?video='+vID+"&parent="+thisURL.hostname+iframeEnd;
+    }
+    else if(url.match(twitchChan)) {
+        vID = url.substring(22);
+        newURL = newURL+"?tc="+vID;
+        iframeHTML = iframeStart+'https://player.twitch.tv/?channel='+vID+"&parent="+thisURL.hostname+iframeEnd;
+    }
+    else if(url) {
+        // only alert on non-empty, but invalid values
+        alert("Unrecogni`zed URL format");
+        return;
+    }
 
-	var thisURL = new URL(window.location);
-	var newURL = thisURL.origin+thisURL.pathname;
-	if(ytID) {
-		newURL = newURL+"?id="+ytID;
-		var iframeHTML = '<iframe width="560" height="315" src="https://www.youtube.com/embed/'+ytID+'" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-	}
-	history.pushState({}, null, newURL);
-
-	$("#video").html(iframeHTML);
+    history.pushState({}, null, newURL);
+    $("#video").html(iframeHTML);
 }
 
 function tick() {
-	if(timeLeft == -999) {
-		$("#time_left").html("Timer stopped");
-		clearInterval(timer);
-		timer = null;
-		return;
-	}
-	if(timeLeft <= 0) {
-		$("#time_left").html("Timer ended");
-		clearInterval(timer);
-		timer = null;
-		return;
-	}
-	
-	// Tick down
-	var hrsLeft = Math.floor(timeLeft/3600);
-	var minsLeft = Math.floor(timeLeft/60)-hrsLeft*60;
-	var secsLeft = timeLeft%60;
-	if(secsLeft<10) {
-		secsLeft = "0"+secsLeft;
-	}
-	var timeText = minsLeft+":"+secsLeft+" remains";
-	if(hrsLeft>0) {
-		if(minsLeft<10) {
-			timeText = hrsLeft+":0"+timeText;
-		}
-		else {
-			timeText = hrsLeft+":"+timeText;
-		}
-	}
-	$("#time_left").html(timeText);
-	timeLeft--;
-	
-	// (once only) Reload video after last second to stop playing
-	if(timeLeft <= 0) {
-		setTimeout(function() {
-			loadFrame();
-		}, 1000);
-	}
+    if(timeLeft == -999) {
+        $("#time_left").html("Timer stopped");
+        clearInterval(timer);
+        timer = null;
+        return;
+    }
+    if(timeLeft <= 0) {
+        $("#time_left").html("Timer ended");
+        clearInterval(timer);
+        timer = null;
+        return;
+    }
+    
+    // Tick down
+    var hrsLeft = Math.floor(timeLeft/3600);
+    var minsLeft = Math.floor(timeLeft/60)-hrsLeft*60;
+    var secsLeft = timeLeft%60;
+    if(secsLeft<10) {
+        secsLeft = "0"+secsLeft;
+    }
+    var timeText = minsLeft+":"+secsLeft+" remains";
+    if(hrsLeft>0) {
+        if(minsLeft<10) {
+            timeText = hrsLeft+":0"+timeText;
+        }
+        else {
+            timeText = hrsLeft+":"+timeText;
+        }
+    }
+    $("#time_left").html(timeText);
+    timeLeft--;
+    
+    // (once only) Reload video after last second to stop playing
+    if(timeLeft <= 0) {
+        setTimeout(function() {
+            loadFrame();
+        }, 1000);
+    }
 }
 
 $( document ).ready(function() {
-	// Load a GET-defined video's URL, if it exists
-	var searchParams = new URLSearchParams(window.location.search);
-	if(searchParams.has("id")) {
-		$("#url").val("https://youtu.be/"+searchParams.get("id"));
-		loadFrame();
-	}
+    // Load a GET-defined YouTube URL, if it exists
+    var searchParams = new URLSearchParams(window.location.search);
+    if(searchParams.has("yt")) {
+        $("#url").val("https://youtu.be/"+searchParams.get("yt"));
+        loadFrame();
+    }
+    // Load a Twitch video
+    else if(searchParams.has("tv")) {
+        $("#url").val("https://www.twitch.tv/videos/"+searchParams.get("tv"));
+        loadFrame();
+    }
+    // Load a live Twitch channel
+    else if(searchParams.has("tc")) {
+        $("#url").val("https://www.twitch.tv/"+searchParams.get("tc"));
+        loadFrame();
+    }
 
-	// Button bind events
-	$("#load").click(function() {
-		loadFrame();
-	});
+    // Button bind events
+    $("#load").click(function() {
+        loadFrame();
+    });
 
-	$("#clear").click(function() {
-		timeLeft = -999;
-		ytID = null;
-		$("#url").val("");
-		$("#time_left").html(initText);
-		loadFrame();
-	});
+    $("#clear").click(function() {
+        timeLeft = -999;
+        vID = null;
+        $("#url").val("");
+        $("#time_left").html(initText);
+        loadFrame();
+    });
 
-	$("#start").click(function() {
-		if($("#video iframe").length==0) {
-			alert("Load video first");
-			return;
-		}
-		timeLeft = $("#time").val()*60;
-		// Only start the interval if it's currently stopped
-		if(!timer) {
-			timer = setInterval(tick,1000);
-		}
-	});
+    $("#start").click(function() {
+        timeLeft = $("#time").val()*60;
+        // Only start the interval if it's currently stopped
+        if(!timer) {
+            timer = setInterval(tick,1000);
+        }
+    });
 
-	$("#stop").click(function() {
-		timeLeft = -999;
-	});
+    $("#stop").click(function() {
+        timeLeft = -999;
+    });
 
-	$("#time_left").html(initText);
+    $("#time_left").html(initText);
 
 });
 </script>
@@ -124,10 +145,13 @@ $( document ).ready(function() {
 <style>
 .inputs,
 #video iframe {
-	margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 button {
-	padding: 5px 25px;
+    padding: 5px 25px;
+}
+ul {
+    margin: 0;
 }
 </style>
 
@@ -136,14 +160,14 @@ button {
 
 <div id="video"></div>
 <div class="inputs">
-	<input id="url" value="">
-	<button type="button" id="load">Load</button>
-	<button type="button" id="clear">Clear</button>
+    <input id="url" value="">
+    <button type="button" id="load">Load</button>
+    <button type="button" id="clear">Clear</button>
 </div>
 <div class="inputs">
-	<input type="number" id="time" value="60">
-	<button type="button" id="start">Start</button>
-	<button type="button" id="stop">Stop</button>
+    <input type="number" id="time" value="60">
+    <button type="button" id="start">Start</button>
+    <button type="button" id="stop">Stop</button>
 </div>
 <div id="time_left"></div>
 
