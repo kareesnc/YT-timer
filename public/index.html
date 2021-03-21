@@ -7,61 +7,97 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+const thisURL = new URL(window.location);
 const youtube = /^https:\/\/youtu\.be\/[a-zA-Z0-9_-]+$/;
 const twitchVid = /^https:\/\/www\.twitch\.tv\/videos\/[0-9]+$/;
-const twitchChan = /^https:\/\/www\.twitch\.tv\/[[a-zA-Z0-9_-]+$/;
-const initText = "Load a video URL above, then start. <ul>"+
-                    "<li>https://youtu.be/[video]</li>"+
-                    "<li>https://www.twitch.tv/videos/[video]</li>"+
-                    "<li>https://www.twitch.tv/[channel]</li>"+
-                    "</ul>";
+const twitchChan = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+$/;
+const youtubeBase = 'https://www.youtube.com/embed/';
+const twitchBase = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname;
+const initText = 'Load a video above, then click start. <ul>'+
+                    '<li>https://youtu.be/[video]</li>'+
+                    '<li>https://www.twitch.tv/videos/[video]</li>'+
+                    '<li>https://www.twitch.tv/[channel]</li>'+
+                    '</ul>';
 const iframeStart = '<iframe width="560" height="315" src="';
 const iframeEnd = '" frameborder="0" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
 var timeLeft = -999;
-var vID = null;
 var timer = null;
 
 function loadFrame() {
-    var url = $("#url").val();
-    vID = null;
-    var embedURL = "";
-    var thisURL = new URL(window.location);
+    var input = $('#input').val();
+    var embedURL = '';
     var newURL = thisURL.origin+thisURL.pathname;
 
-    if(url.match(youtube)) {
-        vID = url.substring(17);
-        newURL = newURL+"?yt="+vID;
-        embedURL = 'https://www.youtube.com/embed/'+vID;
+    if(!input) {
+        return;
     }
-    else if(url.match(twitchVid)) {
-        vID = url.substring(29);
-        newURL = newURL+"?tv="+vID;
-        embedURL = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname+'&video='+vID;
+    if($('#auto').prop('checked')) {
+        if(input.match(youtube)) {
+            input = input.substring(17);
+            newURL = newURL+'?yt='+input;
+            embedURL = youtubeBase+input;
+        }
+        else if(input.match(twitchVid)) {
+            input = input.substring(29);
+            newURL = newURL+'?tv='+input;
+            embedURL = twitchBase+'&video='+input;
+        }
+        else if(input.match(twitchChan)) {
+            input = input.substring(22);
+            newURL = newURL+'?tc='+input;
+            embedURL = twitchBase+'&channel='+input;
+        }
+        else {
+            alert('Unrecognized URL format');
+            return;
+        }
     }
-    else if(url.match(twitchChan)) {
-        vID = url.substring(22);
-        newURL = newURL+"?tc="+vID;
-        embedURL = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname+'&channel='+vID;
+    else if($('#ytID').prop('checked')) {
+        if(input.match(/^[a-zA-Z0-9_-]+$/)) {
+            newURL = newURL+'?yt='+input;
+            embedURL = youtubeBase+input;
+        }
+        else {
+            alert('Invalid YouTube video ID');
+            return;
+        }
     }
-    else if(url) {
-        // only alert on non-empty, but invalid values
-        alert("Unrecognized URL format");
+    else if($('#twID').prop('checked')) {
+        if(input.match(/^\d+$/)) {
+            // assume it's a video, not a channel
+            // this detection may fail if a channel has only numbers in their name
+            newURL = newURL+'?tv='+input;
+            embedURL = twitchBase+'&video='+input;
+        }
+        else if(input.match(/^[a-zA-Z0-9_-]+$/)) {
+            newURL = newURL+'?tc='+input;
+            embedURL = twitchBase+'&channel='+input;
+        }
+        else {
+            alert('Invalid Twitch channel or video ID');
+            return;
+        }
+    }
+    else {
+        alert('Unexpected radio selection');
         return;
     }
 
-    history.pushState({}, null, newURL);
-    $("#video").html(iframeStart+embedURL+iframeEnd);
+    if(embedURL) {
+        history.pushState({}, null, newURL);
+        $('#video').html(iframeStart+embedURL+iframeEnd);
+    }
 }
 
 function tick() {
     if(timeLeft == -999) {
-        $("#time_left").html("Timer stopped");
+        $('#time_left').html('Timer stopped');
         clearInterval(timer);
         timer = null;
         return;
     }
     if(timeLeft <= 0) {
-        $("#time_left").html("Timer ended");
+        $('#time_left').html('Timer ended');
         clearInterval(timer);
         timer = null;
         return;
@@ -72,24 +108,24 @@ function tick() {
     var minsLeft = Math.floor(timeLeft/60)-hrsLeft*60;
     var secsLeft = timeLeft%60;
     if(secsLeft<10) {
-        secsLeft = "0"+secsLeft;
+        secsLeft = '0'+secsLeft;
     }
-    var timeText = minsLeft+":"+secsLeft+" remains";
+    var timeText = minsLeft+':'+secsLeft+' remains';
     if(hrsLeft>0) {
         if(minsLeft<10) {
-            timeText = hrsLeft+":0"+timeText;
+            timeText = hrsLeft+':0'+timeText;
         }
         else {
-            timeText = hrsLeft+":"+timeText;
+            timeText = hrsLeft+':'+timeText;
         }
     }
-    $("#time_left").html(timeText);
+    $('#time_left').html(timeText);
     timeLeft--;
     
     // (once only) Destroy iFrame to ensure playback stops
     if(timeLeft <= 0) {
         setTimeout(function() {
-            $("#video").html('');
+            $('#video').html('');
         }, 1000);
     }
 }
@@ -97,47 +133,50 @@ function tick() {
 $( document ).ready(function() {
     // Load a GET-defined YouTube URL, if it exists
     var searchParams = new URLSearchParams(window.location.search);
-    if(searchParams.has("yt")) {
-        $("#url").val("https://youtu.be/"+searchParams.get("yt"));
+    if(searchParams.has('yt')) {
+        $('#input').val('https://youtu.be/'+searchParams.get('yt'));
         loadFrame();
     }
     // Load a Twitch video
-    else if(searchParams.has("tv")) {
-        $("#url").val("https://www.twitch.tv/videos/"+searchParams.get("tv"));
+    else if(searchParams.has('tv')) {
+        $('#input').val('https://www.twitch.tv/videos/'+searchParams.get('tv'));
         loadFrame();
     }
     // Load a live Twitch channel
-    else if(searchParams.has("tc")) {
-        $("#url").val("https://www.twitch.tv/"+searchParams.get("tc"));
+    else if(searchParams.has('tc')) {
+        $('#input').val('https://www.twitch.tv/'+searchParams.get('tc'));
         loadFrame();
     }
 
     // Button bind events
-    $("#load").click(function() {
+    $('#load').click(function() {
         loadFrame();
     });
 
-    $("#clear").click(function() {
+    $('#clear').click(function() {
+        // not using a reload since some browsers may preserve user inputs
         timeLeft = -999;
-        vID = null;
-        $("#url").val("");
-        $("#time_left").html(initText);
-        loadFrame();
+        $('#auto').prop('checked',true);
+        $('#input').val('');
+        $('#time').val(60);
+        $('#time_left').html(initText);
+        $('#video').html('');
+        history.pushState({}, null, thisURL.origin+thisURL.pathname);
     });
 
-    $("#start").click(function() {
-        timeLeft = $("#time").val()*60;
+    $('#start').click(function() {
+        timeLeft = $('#time').val()*60;
         // Only start the interval if it's currently stopped
         if(!timer) {
             timer = setInterval(tick,1000);
         }
     });
 
-    $("#stop").click(function() {
+    $('#stop').click(function() {
         timeLeft = -999;
     });
 
-    $("#time_left").html(initText);
+    $('#time_left').html(initText);
 
 });
 </script>
@@ -160,9 +199,14 @@ ul {
 
 <div id="video"></div>
 <div class="inputs">
-    <input id="url" value="">
+    <input type="radio" id="auto" name="type" checked><label for="auto">Auto (URL)</label>
+    <input type="radio" id="ytID" name="type"><label for="ytID">YouTube vid ID</label>
+    <input type="radio" id="twID" name="type"><label for="twID">Twitch name/vid ID</label>
+</div>
+<div class="inputs">
+    <input id="input" value="">
     <button type="button" id="load">Load</button>
-    <button type="button" id="clear">Clear</button>
+    <button type="button" id="clear">Reset</button>
 </div>
 <div class="inputs">
     <input type="number" id="time" value="60">
