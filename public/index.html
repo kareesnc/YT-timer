@@ -135,17 +135,14 @@ $( document ).ready(function() {
     var searchParams = new URLSearchParams(window.location.search);
     if(searchParams.has('yt')) {
         $('#input').val('https://youtu.be/'+searchParams.get('yt'));
-        loadFrame();
     }
     // Load a Twitch video
     else if(searchParams.has('tv')) {
         $('#input').val('https://www.twitch.tv/videos/'+searchParams.get('tv'));
-        loadFrame();
     }
     // Load a live Twitch channel
     else if(searchParams.has('tc')) {
         $('#input').val('https://www.twitch.tv/'+searchParams.get('tc'));
-        loadFrame();
     }
 
     // Button bind events
@@ -173,6 +170,7 @@ $( document ).ready(function() {
     });
 
     $('#stop').click(function() {
+        // Interval will be cleared on the next tick
         timeLeft = -999;
     });
 
