@@ -8,20 +8,31 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
 const thisURL = new URL(window.location);
-const youtube = /^https:\/\/youtu\.be\/[a-zA-Z0-9_-]+$/;
-const twitchVid = /^https:\/\/www\.twitch\.tv\/videos\/[0-9]+$/;
-const twitchChan = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+$/;
+const youtubeShort = /^https:\/\/youtu\.be\/.+$/;
+const youtubeLong = /^https:\/\/youtube\.com\/watch\?v=$/;
+const twitchVidDesktop = /^https:\/\/www\.twitch\.tv\/videos\/.+$/;
+const twitchVidMobile = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+\/v\/.+$/;
+const twitchChannel = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+$/;
 const youtubeBase = 'https://www.youtube.com/embed/';
 const twitchBase = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname;
 const initText = 'Load a video above, then click start. <ul>'+
-                    '<li>https://youtu.be/[video]</li>'+
-                    '<li>https://www.twitch.tv/videos/[video]</li>'+
-                    '<li>https://www.twitch.tv/[channel]</li>'+
+                    '<li>YouTube (youtu.be, youtube.com)</li>'+
+                    '<li>Twitch (live chanel or VOD)</li>'+
+                    '<li>YouTube/Twitch vid ID/channel name</li>'+
                     '</ul>';
 const iframeStart = '<iframe width="560" height="315" src="';
 const iframeEnd = '" frameborder="0" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
 var timeLeft = -999;
 var timer = null;
+
+// removes extra params, like time codes
+function trimParams(input,search) {
+    var p = input.indexOf(search);
+    if(p>0) {
+        return input.substring(0,p);
+    }
+    return input;
+}
 
 function loadFrame() {
     var input = $('#input').val();
@@ -32,18 +43,37 @@ function loadFrame() {
         return;
     }
     if($('#auto').prop('checked')) {
-        if(input.match(youtube)) {
+        if(input.match(youtubeShort)) {
             input = input.substring(17);
+            input = trimParams(input,'?');
             newURL = newURL+'?yt='+input;
             embedURL = youtubeBase+input;
         }
-        else if(input.match(twitchVid)) {
+        if(input.match(youtubeLong)) {
+            input = input.substring(28);
+            input = trimParams(input,'&');
+            newURL = newURL+'?yt='+input;
+            embedURL = youtubeBase+input;
+        }
+        else if(input.match(twitchVidDesktop)) {
             input = input.substring(29);
+            input = trimParams(input,'?');
             newURL = newURL+'?tv='+input;
             embedURL = twitchBase+'&video='+input;
         }
-        else if(input.match(twitchChan)) {
+        else if(input.match(twitchVidMobile)) {
             input = input.substring(22);
+            // skip over the channel name and /v/
+            var s = input.indexOf('/');
+            input = input.substring(s+3);
+            input = trimParams(input,'?');
+            newURL = newURL+'?tv='+input;
+            embedURL = twitchBase+'&video='+input;
+        }
+        else if(input.match(twitchChannel)) {
+            input = input.substring(22);
+            input = trimParams(input,'/');
+            input = trimParams(input,'?');
             newURL = newURL+'?tc='+input;
             embedURL = twitchBase+'&channel='+input;
         }
@@ -162,7 +192,7 @@ $( document ).ready(function() {
     });
 
     $('#start').click(function() {
-        timeLeft = $('#time').val()*60;
+        timeLeft = parseInt($('#time').val())*60;
         // Only start the interval if it's currently stopped
         if(!timer) {
             timer = setInterval(tick,1000);
@@ -172,6 +202,33 @@ $( document ).ready(function() {
     $('#stop').click(function() {
         // Interval will be cleared on the next tick
         timeLeft = -999;
+    });
+
+    $('#plus15').click(function() {
+        // always add to the time in the input
+        $('#time').val(parseInt($('#time').val())+15);
+        // only add to the time left if the timer is running
+        if(timer) {
+            timeLeft += 15*60;
+        }
+    });
+
+    $('#set30').click(function() {
+        // always add to the time in the input
+        $('#time').val(30);
+        // only add to the time left if the timer is running
+        if(timer) {
+            timeLeft = 30*60;
+        }
+    });
+
+    $('#set60').click(function() {
+        // always add to the time in the input
+        $('#time').val(60);
+        // only add to the time left if the timer is running
+        if(timer) {
+            timeLeft = 60*60;
+        }
     });
 
     $('#time_left').html(initText);
@@ -184,11 +241,26 @@ $( document ).ready(function() {
 #video iframe {
     margin-bottom: 15px;
 }
+#controls {
+    display: inline-block;
+    width: auto;
+}
+#input, #time {
+    display: block;
+    margin-bottom: 5px;
+    width: 100%;
+}
 button {
     padding: 5px 25px;
 }
 ul {
     margin: 0;
+}
+li {
+    margin-top: 3px;
+}
+hr {
+    margin: 15px 0;
 }
 </style>
 
@@ -196,22 +268,30 @@ ul {
 <body>
 
 <div id="video"></div>
-<div class="inputs">
-    <input type="radio" id="auto" name="type" checked><label for="auto">Auto (URL)</label>
-    <input type="radio" id="ytID" name="type"><label for="ytID">YouTube vid ID</label>
-    <input type="radio" id="twID" name="type"><label for="twID">Twitch name/vid ID</label>
+<div id="controls">
+    <div class="inputs">
+        <input type="radio" id="auto" name="type" checked><label for="auto">Auto (URL)</label>
+        <input type="radio" id="ytID" name="type"><label for="ytID">YouTube</label>
+        <input type="radio" id="twID" name="type"><label for="twID">Twitch</label>
+    </div>
+    <div class="inputs">
+        <input id="input" value="">
+        <button type="button" id="load">Load</button>
+        <button type="button" id="clear">Reset</button>
+    </div>
+    <div class="inputs">
+        <input type="number" id="time" value="60">
+        <button type="button" id="start">Start</button>
+        <button type="button" id="stop">Stop</button>
+    </div>
+    <hr>
+    <div class="inputs">
+        <button type="button" id="plus15">+15 min</button>
+        <button type="button" id="set30">Set 30</button>
+        <button type="button" id="set60">Set 60</button>
+    </div>
+    <div id="time_left"></div>
 </div>
-<div class="inputs">
-    <input id="input" value="">
-    <button type="button" id="load">Load</button>
-    <button type="button" id="clear">Reset</button>
-</div>
-<div class="inputs">
-    <input type="number" id="time" value="60">
-    <button type="button" id="start">Start</button>
-    <button type="button" id="stop">Stop</button>
-</div>
-<div id="time_left"></div>
 
 </body>
 </html>
