@@ -9,8 +9,12 @@ const twitchChannel = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+$/;
 
 // base URLs
 const thisURL = new URL(window.location);
-const youtubeBase = 'https://www.youtube.com/embed/';
-const twitchBase = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname;
+const youtubeEmbedBase = 'https://www.youtube.com/embed/';
+const twitchEmbedBase = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname;
+const youtubeInputVideo = 'https://youtu.be/';
+const youtubeInputPlaylist = 'https://youtube.com/playlist?list=';
+const twitchInputVideo = 'https://www.twitch.tv/videos/';
+const twitchInputChannel = 'https://www.twitch.tv/';
 
 // init values
 const initText = 'Load a video, then click start.';
@@ -31,37 +35,37 @@ function autoDetectURL(input) {
     if(input.match(youtubeShare)) {
         input = 'TODO';
         selfURL += '?yt='+input;
-        embedURL = youtubeBase+input;
+        embedURL = youtubeEmbedBase+input;
     }
     else if(input.match(youtubeFull)) {
         input = 'TODO';
         selfURL += '?yt='+input;
-        embedURL = youtubeBase+input;
+        embedURL = youtubeEmbedBase+input;
     }
     else if(input.match(youtubePlaylistShare)) {
         input = 'TODO';
         selfURL += '?yp='+input;
-        embedURL = youtubeBase+input;
+        embedURL = youtubeEmbedBase+input;
     }
     else if(input.match(youtubePlaylistFull)) {
         input = 'TODO';
         selfURL += '?yp='+input;
-        embedURL = youtubeBase+input;
+        embedURL = youtubeEmbedBase+input;
     }
     else if(input.match(twitchVidDesktop)) {
         input = 'TODO';
         selfURL += '?tv='+input;
-        embedURL = twitchBase+'&video='+input;
+        embedURL = twitchEmbedBase+'&video='+input;
     }
     else if(input.match(twitchVidMobile)) {
         input = 'TODO';
         selfURL += '?tv='+input;
-        embedURL = twitchBase+'&video='+input;
+        embedURL = twitchEmbedBase+'&video='+input;
     }
     else if(input.match(twitchChannel)) {
         input = 'TODO';
         selfURL += '?tc='+input;
-        embedURL = twitchBase+'&channel='+input;
+        embedURL = twitchEmbedBase+'&channel='+input;
     }
     else {
         alert('Unrecognized URL format');
@@ -92,7 +96,7 @@ function loadFrame() {
     else if($('#ytID').prop('checked')) {
         if(input.match(/^[a-zA-Z0-9_-]+$/)) {
             selfURL += '?yt='+input;
-            embedURL = youtubeBase+input;
+            embedURL = youtubeEmbedBase+input;
         }
         else {
             alert('Invalid YouTube video ID');
@@ -102,7 +106,7 @@ function loadFrame() {
     else if($('#ytPL').prop('checked')) {
         if(input.match(/^[a-zA-Z0-9_-]+$/)) {
             selfURL += '?yp='+input;
-            embedURL = youtubeBase+'?listType=playlist&list='+input;
+            embedURL = youtubeEmbedBase+'?listType=playlist&list='+input;
         }
         else {
             alert('Invalid YouTube video ID');
@@ -112,7 +116,7 @@ function loadFrame() {
     else if($('#twID').prop('checked')) {
         if(input.match(/^\d+$/)) {
             selfURL += '?tv='+input;
-            embedURL = twitchBase+'&video='+input;
+            embedURL = twitchEmbedBase+'&video='+input;
         }
         else {
             alert('Invalid Twitch video ID');
@@ -122,7 +126,7 @@ function loadFrame() {
     else if($('#twLC').prop('checked')) {
         if(input.match(/^[a-zA-Z0-9_-]+$/)) {
             selfURL += '?tc='+input;
-            embedURL = twitchBase+'&channel='+input;
+            embedURL = twitchEmbedBase+'&channel='+input;
         }
         else {
             alert('Invalid Twitch channel');
@@ -181,24 +185,42 @@ function tick() {
     }
 }
 
+// reset everything: time, inputs, base URL
+// set pushState to also reset the self URL
+function reset(pushState) {
+    timeLeft = -999;
+    $('#auto').prop('checked',true);
+    $('#input').val('');
+    $('#time').val(60);
+    $('#time_left').html(initText);
+    $('#video').html('');
+    if(pushState) {
+        history.pushState({}, null, getBaseSelfURL());
+    }
+}
+
 $( document ).ready(function() {
     // Load a GET-defined YouTube URL, if it exists
     var searchParams = new URLSearchParams(window.location.search);
+    var inputVal = '';
     if(searchParams.has('yt')) {
-        $('#input').val('https://youtu.be/'+searchParams.get('yt'));
+        inputVal = youtubeInputVideo+searchParams.get('yt');
     }
     // Load a YouTube playlist (TODO: accept list index?)
     if(searchParams.has('yp')) {
-        $('#input').val('https://youtube.com/playlist?list='+searchParams.get('yp'));
+        inputVal = youtubeInputPlaylist+searchParams.get('yp');
     }
     // Load a Twitch video
     else if(searchParams.has('tv')) {
-        $('#input').val('https://www.twitch.tv/videos/'+searchParams.get('tv'));
+        inputVal = twitchInputVideo+searchParams.get('tv');
     }
     // Load a live Twitch channel
     else if(searchParams.has('tc')) {
-        $('#input').val('https://www.twitch.tv/'+searchParams.get('tc'));
+        inputVal = twitchInputChannel+searchParams.get('tc');
     }
+    // Reset everything to prevent browser input saving
+    reset(false);
+    $('#input').val(inputVal);
 
     // Button bind events
     $('#load').click(function() {
@@ -206,14 +228,7 @@ $( document ).ready(function() {
     });
 
     $('#reset').click(function() {
-        // not using a reload since some browsers may preserve user inputs
-        timeLeft = -999;
-        $('#auto').prop('checked',true);
-        $('#input').val('');
-        $('#time').val(60);
-        $('#time_left').html(initText);
-        $('#video').html('');
-        history.pushState({}, null, thisURL.origin+thisURL.pathname);
+        reset(true);
     });
 
     $('#start').click(function() {
@@ -239,18 +254,18 @@ $( document ).ready(function() {
     });
 
     $('#set30').click(function() {
-        // always add to the time in the input
+        // always set the time in the input
         $('#time').val(30);
-        // only add to the time left if the timer is running
+        // only set the time left if the timer is running
         if(timer) {
             timeLeft = 30*60;
         }
     });
 
     $('#set60').click(function() {
-        // always add to the time in the input
+        // always set the time in the input
         $('#time').val(60);
-        // only add to the time left if the timer is running
+        // only set the time left if the timer is running
         if(timer) {
             timeLeft = 60*60;
         }
