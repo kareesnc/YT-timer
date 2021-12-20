@@ -32,6 +32,7 @@ function getBaseSelfURL() {
 // { selfURL: <new self url with type/ID>, embedURL: <embeddable YoutTube/Twitch URL> }
 function autoDetectURL(input) {
     var selfURL = getBaseSelfURL();
+    var embedURL = '';
     if(input.match(youtubeShare)) {
         input = 'TODO';
         selfURL += '?yt='+input;
@@ -77,7 +78,9 @@ function autoDetectURL(input) {
     };
 }
 
-function loadFrame() {
+// interprets the value in the main input based on the radio selection,
+// then creates and embeds the iFrame to load the selected media
+function createFrame() {
     var input = $('#input').val();
     var selfURL = getBaseSelfURL();
     var embedURL = '';
@@ -89,9 +92,11 @@ function loadFrame() {
         alert('This feature is not ready. Please use a specific mode.');
         return;
         var result = autoDetectURL(input);
-        if(!result) {
+        if(!result && !result.selfURL && !result.embedURL) {
             return;
         }
+        selfURL = result.selfURL;
+        embedURL = result.embedURL;
     }
     else if($('#ytID').prop('checked')) {
         if(input.match(/^[a-zA-Z0-9_-]+$/)) {
@@ -144,6 +149,7 @@ function loadFrame() {
     }
 }
 
+// tick down the timer every second, and clear the iframe on finish
 function tick() {
     if(timeLeft == -999) {
         $('#time_left').html('Timer stopped');
@@ -224,7 +230,7 @@ $( document ).ready(function() {
 
     // Button bind events
     $('#load').click(function() {
-        loadFrame();
+        createFrame();
     });
 
     $('#reset').click(function() {
