@@ -1,0 +1,23 @@
+.inputs, #video iframe, #time_left {
+    margin-bottom: 15px;
+}
+#controls {
+    display: inline-block;
+    width: auto;
+}
+#input, #time {
+    margin-bottom: 5px;
+    width: 100%;
+}
+button {
+    padding: 5px 25px;
+}
+ul {
+    margin: 0;
+}
+li {
+    margin-top: 3px;
+}
+hr {
+    margin: 15px 0;
+}
