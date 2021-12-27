@@ -7,16 +7,13 @@ const youtubeVideo = /^(?:https\:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/wa
 // https://www.twitch.tv/360chrism/v/1240569639?sr=a&t=46974s
 // https://www.twitch.tv/bananaslamjamma
 
-// base URLs
+// URLs
 const thisURL = new URL(window.location);
 const youtubeEmbedBase = 'https://www.youtube.com/embed/';
 const twitchEmbedBase = 'https://player.twitch.tv/?autoplay=false&parent='+thisURL.hostname;
-const youtubeInputVideo = 'https://youtu.be/';
-const youtubeInputPlaylist = 'https://youtube.com/playlist?list=';
-const twitchInputVideo = 'https://www.twitch.tv/videos/';
-const twitchInputChannel = 'https://www.twitch.tv/';
 
 // init values
+const defaultTime = 60;
 const initText = 'Load a video, then click start.';
 const iframeStart = '<iframe width="560" height="315" src="';
 const iframeEnd = '" frameborder="0" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
@@ -153,43 +150,32 @@ function tick() {
     }
 }
 
-// reset everything: time, inputs, base URL
-// set pushState to also reset the self URL
-function reset(pushState) {
-    timeLeft = -999;
-    $('#auto').prop('checked',true);
-    $('#input').val('');
-    $('#time').val(60);
-    $('#time_left').html(initText);
-    $('#video').html('');
-    if(pushState) {
-        history.pushState({}, null, getBaseSelfURL());
-    }
-}
-
 // main function: load a URL-saved video state, attach button events
 $( document ).ready(function() {
     // Load a GET-defined YouTube URL, if it exists
     var searchParams = new URLSearchParams(window.location.search);
-    var inputVal = '';
     if(searchParams.has('yt')) {
-        inputVal = youtubeInputVideo+searchParams.get('yt');
+        $('#input').val(searchParams.get('yt'));
+        $('#ytID').prop('checked',true);
     }
     // Load a YouTube playlist (TODO: accept list index?)
     if(searchParams.has('yp')) {
-        inputVal = youtubeInputPlaylist+searchParams.get('yp');
+        $('#input').val(searchParams.get('yp'));
+        $('#ytPL').prop('checked',true);
     }
     // Load a Twitch video
     else if(searchParams.has('tv')) {
-        inputVal = twitchInputVideo+searchParams.get('tv');
+        $('#input').val(searchParams.get('tv'));
+        $('#twID').prop('checked',true);
     }
     // Load a live Twitch channel
     else if(searchParams.has('tc')) {
-        inputVal = twitchInputChannel+searchParams.get('tc');
+        $('#input').val(searchParams.get('tc'));
+        $('#twLC').prop('checked',true);
     }
-    // Reset everything to prevent browser input saving
-    reset(false);
-    $('#input').val(inputVal);
+    // Set default time & instructions (setting time prevents browser auto-fill/save)
+    $('#time').val(defaultTime);
+    $('#time_left').html(initText);
 
     // Button bind events
     $('#load').click(function() {
@@ -197,7 +183,13 @@ $( document ).ready(function() {
     });
 
     $('#reset').click(function() {
-        reset(true);
+        timeLeft = -999;
+        $('#time').val(defaultTime);
+        $('#time_left').html(initText);
+        $('#input').val('');
+        $('#auto').prop('checked',true);
+        $('#video').html('');
+        history.pushState({}, null, getBaseSelfURL());
     });
 
     $('#start').click(function() {
