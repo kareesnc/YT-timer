@@ -1,12 +1,29 @@
 // regexes
 // TODO: set these to use regex group features, then process the groups to extract the relevant IDs
-const youtubeShare = /^https:\/\/youtu\.be\/.+$/;
-const youtubeFull = /^https:\/\/youtube\.com\/watch\?v=$/;
-const youtubePlaylistShare = 'https://youtube.com/playlist?list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO';
-const youtubePlaylistFull = 'https://www.youtube.com/watch?v=vQVeaIHWWck&list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO';
-const twitchVidDesktop = /^https:\/\/www\.twitch\.tv\/videos\/.+$/;
-const twitchVidMobile = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+\/v\/.+$/;
-const twitchChannel = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+$/;
+/* sample URLs
+Youtube Share (youtu.be)
+https://youtu.be/pdV4sTWweqk?t=12
+Youtube Full
+https://www.youtube.com/watch?v=pdV4sTWweqk&t=12s
+Youtube Playlist Share
+https://youtube.com/playlist?list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
+Youtube Playlist Full
+https://www.youtube.com/watch?v=vQVeaIHWWck&list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
+Twitch Share/Full Desktop
+https://www.twitch.tv/videos/1240569639?t=13h02m54s
+Twitch Share Mobile
+https://www.twitch.tv/360chrism/v/1240569639?sr=a&t=46974s
+Twitch Channel
+https://www.twitch.tv/bananaslamjamma
+*/
+
+const youtubeShare = /^$/;
+const youtubeFull = /^$/;
+const youtubePlaylistShare = /^$/;
+const youtubePlaylistFull = /^$/;
+const twitchVidDesktop = /^$/;
+const twitchVidMobile = /^$/;
+const twitchChannel = /^$/;
 
 // base URLs
 const thisURL = new URL(window.location);
