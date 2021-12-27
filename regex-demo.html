@@ -17,6 +17,11 @@
                         console.log(e);
                     }
                     var result = value.match(regex);
+                    if(!result) {
+                        console.log('No match found');
+                        $('#output').html('<p>No match found.</p>');
+                        return;
+                    }
                     console.log('Regex match result:');
                     console.log(result);
                     var outputHTML = 'Matches: <ol start="0">';
@@ -48,11 +53,11 @@
     <body>
         <input type="text" size="100" id="input" autocomplete="off"
             placeholder="Input value" 
-            value="https://www.google.com/images"
+            value="https://youtu.be/dQw4w9WgXcQ?t=18"
         />
         <input type="text" size="100" id="regex" autocomplete="off"
             placeholder="Regex (no start or end '/')" 
-            value="^(?:https\:\/\/)(?:www\.)?(google\.com)(\/.+)?$"
+            value="^(?:https\:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)(\w+)(?:\?.+|&.+)?$"
         />
         <button type="button" id="run">Analyze</button>
         <div id="output"></div>

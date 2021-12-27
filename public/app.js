@@ -1,29 +1,11 @@
 // regexes
-// TODO: set these to use regex group features, then process the groups to extract the relevant IDs
-/* sample URLs
-Youtube Share (youtu.be)
-https://youtu.be/pdV4sTWweqk?t=12
-Youtube Full
-https://www.youtube.com/watch?v=pdV4sTWweqk&t=12s
-Youtube Playlist Share
-https://youtube.com/playlist?list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
-Youtube Playlist Full
-https://www.youtube.com/watch?v=vQVeaIHWWck&list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
-Twitch Share/Full Desktop
-https://www.twitch.tv/videos/1240569639?t=13h02m54s
-Twitch Share Mobile
-https://www.twitch.tv/360chrism/v/1240569639?sr=a&t=46974s
-Twitch Channel
-https://www.twitch.tv/bananaslamjamma
-*/
+const youtubeVideo = /^(?:https\:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)(\w+)(?:\?.+|&.+)?$/;
+// https://youtube.com/playlist?list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
+// https://www.youtube.com/watch?v=vQVeaIHWWck&list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
 
-const youtubeShare = /^$/;
-const youtubeFull = /^$/;
-const youtubePlaylistShare = /^$/;
-const youtubePlaylistFull = /^$/;
-const twitchVidDesktop = /^$/;
-const twitchVidMobile = /^$/;
-const twitchChannel = /^$/;
+// https://www.twitch.tv/videos/1240569639?t=13h02m54s
+// https://www.twitch.tv/360chrism/v/1240569639?sr=a&t=46974s
+// https://www.twitch.tv/bananaslamjamma
 
 // base URLs
 const thisURL = new URL(window.location);
@@ -51,45 +33,7 @@ function getBaseSelfURL() {
 function autoDetectURL(input) {
     var selfURL = getBaseSelfURL();
     var embedURL = '';
-    if(input.match(youtubeShare)) {
-        input = 'TODO';
-        selfURL += '?yt='+input;
-        embedURL = youtubeEmbedBase+input;
-    }
-    else if(input.match(youtubeFull)) {
-        input = 'TODO';
-        selfURL += '?yt='+input;
-        embedURL = youtubeEmbedBase+input;
-    }
-    else if(input.match(youtubePlaylistShare)) {
-        input = 'TODO';
-        selfURL += '?yp='+input;
-        embedURL = youtubeEmbedBase+input;
-    }
-    else if(input.match(youtubePlaylistFull)) {
-        input = 'TODO';
-        selfURL += '?yp='+input;
-        embedURL = youtubeEmbedBase+input;
-    }
-    else if(input.match(twitchVidDesktop)) {
-        input = 'TODO';
-        selfURL += '?tv='+input;
-        embedURL = twitchEmbedBase+'&video='+input;
-    }
-    else if(input.match(twitchVidMobile)) {
-        input = 'TODO';
-        selfURL += '?tv='+input;
-        embedURL = twitchEmbedBase+'&video='+input;
-    }
-    else if(input.match(twitchChannel)) {
-        input = 'TODO';
-        selfURL += '?tc='+input;
-        embedURL = twitchEmbedBase+'&channel='+input;
-    }
-    else {
-        alert('Unrecognized URL format');
-        return null;
-    }
+    // TODO
     return {
         selfURL: selfURL,
         embedURL: embedURL
