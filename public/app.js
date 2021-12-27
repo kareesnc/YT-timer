@@ -27,7 +27,29 @@ function getBaseSelfURL() {
 function autoDetectURL(input) {
     var selfURL = getBaseSelfURL();
     var embedURL = '';
-    // TODO
+    var result = null;
+    // check input against the regexes - if result exists, relevant ID will be in index 1
+    // need to check for YouTube playlist first, since some playlist URLs will also register as a video URL
+    if(result = input.match(youtubePlaylist)) {
+        selfURL += '?yp='+result[1];
+        embedURL = youtubeEmbedBase+'?listType=playlist&list='+result[1];
+    }
+    else if(result = input.match(youtubeVideo)) {
+        selfURL += '?yt='+result[1];
+        embedURL = youtubeEmbedBase+result[1];
+    }
+    else if(result = input.match(twitchVideo)) {
+        selfURL += '?tv='+result[1];
+        embedURL = twitchEmbedBase+'&video='+result[1];
+    }
+    else if(result = input.match(twitchChannel)) {
+        selfURL += '?tc='+result[1];
+        embedURL = twitchEmbedBase+'&channel='+result[1];
+    }
+    else {
+        alert('Unknown URL format.');
+        return;
+    }
     return {
         selfURL: selfURL,
         embedURL: embedURL
@@ -45,10 +67,8 @@ function createFrame() {
         return;
     }
     if($('#auto').prop('checked')) {
-        alert('This feature is not ready. Please use a specific mode.');
-        return;
         var result = autoDetectURL(input);
-        if(!result && !result.selfURL && !result.embedURL) {
+        if(!result || !result.selfURL || !result.embedURL) {
             return;
         }
         selfURL = result.selfURL;
@@ -156,7 +176,7 @@ $( document ).ready(function() {
         $('#ytID').prop('checked',true);
     }
     // Load a YouTube playlist
-    if(searchParams.has('yp')) {
+    else if(searchParams.has('yp')) {
         $('#input').val(searchParams.get('yp'));
         $('#ytPL').prop('checked',true);
     }
@@ -169,6 +189,10 @@ $( document ).ready(function() {
     else if(searchParams.has('tc')) {
         $('#input').val(searchParams.get('tc'));
         $('#twLC').prop('checked',true);
+    }
+    else {
+        $('#input').val(searchParams.get(''));
+        $('#auto').prop('checked',true);
     }
     // Set default time & instructions (setting time prevents browser auto-fill/save)
     $('#time').val(defaultTime);
