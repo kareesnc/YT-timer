@@ -1,11 +1,8 @@
 // regexes
 const youtubeVideo = /^(?:https\:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)(\w+)(?:\?.+|&.+)?$/;
-// https://youtube.com/playlist?list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
-// https://www.youtube.com/watch?v=vQVeaIHWWck&list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO
-
-// https://www.twitch.tv/videos/1240569639?t=13h02m54s
-// https://www.twitch.tv/360chrism/v/1240569639?sr=a&t=46974s
-// https://www.twitch.tv/bananaslamjamma
+const youtubePlaylist = /^(?:https\:\/\/)?(?:www\.)?(?:youtube\.com\/)(?:playlist\?|watch\?v=\w+&)(?:list=)(\w+)(?:&.+)?$/;
+const twitchVideo = /^(?:https\:\/\/)?(?:www\.)?(?:twitch\.tv\/)(?:videos\/|\w+\/v\/)(\w+)(?:\?.+)?$/;
+const twitchChannel = /^(?:https\:\/\/)?(?:www\.)?(?:twitch\.tv\/)(\w+)(?:\?.+)?$/;
 
 // URLs
 const thisURL = new URL(window.location);
@@ -158,7 +155,7 @@ $( document ).ready(function() {
         $('#input').val(searchParams.get('yt'));
         $('#ytID').prop('checked',true);
     }
-    // Load a YouTube playlist (TODO: accept list index?)
+    // Load a YouTube playlist
     if(searchParams.has('yp')) {
         $('#input').val(searchParams.get('yp'));
         $('#ytPL').prop('checked',true);
