@@ -1,8 +1,9 @@
 // regexes
+// TODO: set these to use regex group features, then process the groups to extract the relevant IDs
 const youtubeShare = /^https:\/\/youtu\.be\/.+$/;
 const youtubeFull = /^https:\/\/youtube\.com\/watch\?v=$/;
-const youtubePlaylistShare = /^$/;
-const youtubePlaylistFull = /^$/;
+const youtubePlaylistShare = 'https://youtube.com/playlist?list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO';
+const youtubePlaylistFull = 'https://www.youtube.com/watch?v=vQVeaIHWWck&list=PLewsLItNcQsGdA2aQFjm8SW_t5q8GE1IO';
 const twitchVidDesktop = /^https:\/\/www\.twitch\.tv\/videos\/.+$/;
 const twitchVidMobile = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+\/v\/.+$/;
 const twitchChannel = /^https:\/\/www\.twitch\.tv\/[a-zA-Z0-9_-]+$/;
@@ -205,6 +206,7 @@ function reset(pushState) {
     }
 }
 
+// main function: load a URL-saved video state, attach button events
 $( document ).ready(function() {
     // Load a GET-defined YouTube URL, if it exists
     var searchParams = new URLSearchParams(window.location.search);

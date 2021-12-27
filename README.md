@@ -12,3 +12,7 @@ Deploy (requires auth):
 ```
 firebase deploy --only hosting
 ```
+Deploy preview:
+```
+firebase hosting:channel:deploy preview_name
+```
