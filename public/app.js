@@ -33,6 +33,9 @@ function autoDetectURL(input) {
     if(result = input.match(youtubePlaylist)) {
         selfURL += '?yp='+result[1];
         embedURL = youtubeEmbedBase+'?listType=playlist&list='+result[1];
+        // TODO: can the embed URL include a video ID as well, to start at that video?
+        // if so, consider altering the regex to capture the video ID optionally
+        // (may need to detect length of result in that case)
     }
     else if(result = input.match(youtubeVideo)) {
         selfURL += '?yt='+result[1];
