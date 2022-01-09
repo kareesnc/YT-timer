@@ -1,7 +1,7 @@
 // regexes
-const youtubeVideo = /^(?:https\:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)(\w+)(?:\?.+|&.+)?$/;
-const youtubePlaylist = /^(?:https\:\/\/)?(?:www\.)?(?:youtube\.com\/)(?:playlist\?|watch\?v=\w+&)(?:list=)(\w+)(?:&.+)?$/;
-const twitchVideo = /^(?:https\:\/\/)?(?:www\.)?(?:twitch\.tv\/)(?:videos\/|\w+\/v\/)(\w+)(?:\?.+)?$/;
+const youtubeVideo = /^(?:https\:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]+)(?:\?.+|&.+)?$/;
+const youtubePlaylist = /^(?:https\:\/\/)?(?:www\.)?(?:youtube\.com\/)(?:playlist\?|watch\?v=\w+&)(?:list=)([\w-]+)(?:&.+)?$/;
+const twitchVideo = /^(?:https\:\/\/)?(?:www\.)?(?:twitch\.tv\/)(?:videos\/|\w+\/v\/)(\d+)(?:\?.+)?$/;
 const twitchChannel = /^(?:https\:\/\/)?(?:www\.)?(?:twitch\.tv\/)(\w+)(?:\?.+)?$/;
 
 // URLs
