@@ -4,6 +4,7 @@
 #controls {
     display: inline-block;
     width: auto;
+    font-family: sans-serif;
 }
 #input, #time {
     margin-bottom: 5px;

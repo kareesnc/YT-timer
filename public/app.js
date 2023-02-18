@@ -172,6 +172,11 @@ function tick() {
 
 // main function: load a URL-saved video state, attach button events
 $( document ).ready(function() {
+    // Add offline service worker if possible
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/offline.worker.js");
+    }
+
     // Load a GET-defined YouTube URL, if it exists
     var searchParams = new URLSearchParams(window.location.search);
     if(searchParams.has('yt')) {

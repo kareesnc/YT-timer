@@ -1,0 +1,21 @@
+{
+	"name": "YouTube Timer",
+	"short_name": "YT Timer",
+	"description": "Very basic YouTube & Twitch sleep timer",
+	"start_url": "https://yt-timer.web.app/",
+	"display": "minimal-ui",
+	"theme_color": "#cc0000",
+	"background_color": "#ffffff",
+	"icons": [
+		{
+			"src": "https://yt-timer.web.app/video-svgrepo-com.svg",
+			"sizes": "512x512",
+			"type": "image/svg+xml"
+		},
+		{
+			"src": "https://yt-timer.web.app/video-svgrepo-com.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}
