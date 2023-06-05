@@ -24,7 +24,10 @@ class Timer {
     this.timeLeft = parseInt($('#time').val())*60
     // Only start the interval if it's currently stopped
     if(!this.timer) {
-      this.timer = setInterval(this.tick,1000)
+      const self = this
+      this.timer = setInterval(function() {
+        self.tick()
+      },1000)
     }
   }
 
@@ -35,16 +38,16 @@ class Timer {
 
   tick() {
     if(this.timeLeft == -999) {
-        $('#time_left').html('Timer stopped')
-        clearInterval(this.timer)
-        this.timer = undefined
-        return
+      $('#time_left').html('Timer stopped')
+      clearInterval(this.timer)
+      this.timer = undefined
+      return
     }
     if(this.timeLeft <= 0) {
-        $('#time_left').html('Timer ended')
-        clearInterval(this.timer)
-        this.timer = undefined
-        return
+      $('#time_left').html('Timer ended')
+      clearInterval(this.timer)
+      this.timer = undefined
+      return
     }
 
     // Display remaining time
@@ -52,16 +55,16 @@ class Timer {
     var minsLeft = Math.floor(this.timeLeft/60)-hrsLeft*60
     var secsLeft = this.timeLeft%60
     if(secsLeft<10) {
-        secsLeft = '0'+secsLeft
+      secsLeft = '0'+secsLeft
     }
     var timeText = minsLeft+':'+secsLeft+' remains'
     if(hrsLeft>0) {
-        if(minsLeft<10) {
-            timeText = hrsLeft+':0'+timeText
-        }
-        else {
-            timeText = hrsLeft+':'+timeText
-        }
+      if(minsLeft<10) {
+        timeText = hrsLeft+':0'+timeText
+      }
+      else {
+        timeText = hrsLeft+':'+timeText
+      }
     }
     $('#time_left').html(timeText)
   
@@ -70,9 +73,9 @@ class Timer {
     
     // (once only) Destroy iFrame to ensure playback stops
     if(this.timeLeft <= 0) {
-        setTimeout(function() {
-            $('#video').html('')
-        }, 1000)
+      setTimeout(function() {
+        $('#video').html('')
+      }, 1000)
     }
   }
 }
