@@ -6,7 +6,12 @@
 <title>YouTube Timer</title>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="app.js"></script>
+
+<script src="scripts/app.js"></script>
+<script src="scripts/storage.js"></script>
+<script src="scripts/timer.js"></script>
+<script src="scripts/video.js"></script>
+
 <link rel="stylesheet" type="text/css"href="style.css">
 <link rel="manifest" href="/manifest.json" />
 </head>
@@ -30,7 +35,7 @@
         <button type="button" id="set30">Set 30</button>
         <button type="button" id="set60">Set 60</button>
     </div>
-    <div id="time_left"></div>
+    <div id="time_left">Load a video, then click start.</div>
     <div class="inputs">
         Parsing mode:
         <div><input type="radio" id="auto" name="type" checked><label for="auto">Auto (share links & full URLs)</label></div>
